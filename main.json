@@ -441,7 +441,7 @@
               "template": {
                   "containers": [
                       {
-                          "image": "[concat('docker.io/johanneswk/', parameters('containerapps_nginx_name'), 'proxy')]",
+                          "image": "docker.io/johanneswk/personal-nginxproxy",
                           "name": "[parameters('containerapps_nginx_name')]",
                           "resources": {
                               "cpu": 0.25,
