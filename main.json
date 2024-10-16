@@ -42,8 +42,8 @@
         {
             "type": "Microsoft.App/managedEnvironments",
             "apiVersion": "2024-03-01",
-            "name": "[parameters('managedEnvironments_managedenv_kotv_vaultwarden_name')]",
-            "location": "Sweden Central",
+            "name": "[format('managedenv-{0}-vaultwarden', parameters('baseName'))]",
+            "location": "[parameters('location')]",
             "properties": {
                 "zoneRedundant": false,
                 "kedaConfiguration": {},
@@ -64,8 +64,8 @@
         {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2023-05-01",
-            "name": "[parameters('storageAccounts_stgvaultwardenkotv_name')]",
-            "location": "swedencentral",
+            "name": "[format('stgvaultwarden{0}', parameters('baseName'))]",
+            "location": "[parameters('location')]",
             "sku": {
                 "name": "Standard_LRS",
                 "tier": "Standard"
@@ -102,30 +102,30 @@
         {
             "type": "Microsoft.App/containerapps",
             "apiVersion": "2024-03-01",
-            "name": "[parameters('containerapps_vaultwardenkotv_name')]",
-            "location": "Sweden Central",
+            "name": "[format('vaultwarden{0}', parameters('baseName'))]",
+            "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.App/managedEnvironments', parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'))]"
+		"[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]"
             ],
             "identity": {
                 "type": "None"
             },
             "properties": {
-                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'))]",
-                "environmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'))]",
+                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
+		"environmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
                 "configuration": {
                     "secrets": [
                         {
                             "name": "admintoken",
-							"value": "[parameters('adminToken')]"
+			    "value": "[parameters('adminToken')]"
                         },
                         {
                             "name": "fileshare-connectionstring",
-							"value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('stgvaultwarden{0}', parameters('baseName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2023-01-01').keys[0].value)]"
+			    "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('stgvaultwarden{0}', parameters('baseName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2023-01-01').keys[0].value)]"
                         },
                         {
                             "name": "sendgridsmtppassword",
-							"value": "[parameters('sendgridSmtpPassword')]"
+			    "value": "[parameters('sendgridSmtpPassword')]"
                         }
                     ],
                     "activeRevisionsMode": "Single",
@@ -232,9 +232,9 @@
         {
             "type": "Microsoft.App/managedEnvironments/storages",
             "apiVersion": "2024-03-01",
-            "name": "[concat(parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'), '/vaultwarden')]",
+            "name": "[format('{0}/{1}', format('managedenv-{0}-vaultwarden', parameters('baseName')), 'vaultwarden')]",
             "dependsOn": [
-                "[resourceId('Microsoft.App/managedEnvironments', parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'))]"
+                "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
             ],
             "properties": {
                 "azureFile": {
@@ -248,9 +248,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2023-05-01",
-            "name": "[concat(parameters('storageAccounts_stgvaultwardenkotv_name'), '/default')]",
+            "name": "[format('{0}/{1}', format('stgvaultwarden{0}', parameters('baseName')), 'default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_stgvaultwardenkotv_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -269,9 +269,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2023-05-01",
-            "name": "[concat(parameters('storageAccounts_stgvaultwardenkotv_name'), '/default')]",
+            "name": "[format('{0}/{1}', format('stgvaultwarden{0}', parameters('baseName')), 'default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_stgvaultwardenkotv_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -293,9 +293,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices",
             "apiVersion": "2023-05-01",
-            "name": "[concat(parameters('storageAccounts_stgvaultwardenkotv_name'), '/default')]",
+            "name": "[format('{0}/{1}', format('stgvaultwarden{0}', parameters('baseName')), 'default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_stgvaultwardenkotv_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
             ],
             "properties": {
                 "cors": {
@@ -306,9 +306,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices",
             "apiVersion": "2023-05-01",
-            "name": "[concat(parameters('storageAccounts_stgvaultwardenkotv_name'), '/default')]",
+            "name": "[format('{0}/{1}', format('stgvaultwarden{0}', parameters('baseName')), 'default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_stgvaultwardenkotv_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
             ],
             "properties": {
                 "cors": {
@@ -320,16 +320,16 @@
             "type": "Microsoft.App/containerapps",
             "apiVersion": "2024-03-01",
             "name": "[parameters('containerapps_nginx_name')]",
-            "location": "Sweden Central",
+            "location": "[parameters('location')]",
             "dependsOn": [
-                "[resourceId('Microsoft.App/managedEnvironments', parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'))]"
+		"[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]"
             ],
             "identity": {
                 "type": "None"
             },
             "properties": {
-                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'))]",
-                "environmentId": "[resourceId('Microsoft.App/managedEnvironments', parameters('managedEnvironments_managedenv_kotv_vaultwarden_name'))]",
+                "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
+                "environmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
                 "configuration": {
                     "activeRevisionsMode": "Single",
                     "ingress": {
@@ -449,10 +449,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2023-05-01",
-            "name": "[concat(parameters('storageAccounts_stgvaultwardenkotv_name'), '/default/vaultwarden')]",
+	    "name": "[format('{0}/{1}/{2}', format('stgvaultwarden{0}', parameters('baseName')), 'default', 'vaultwarden')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_stgvaultwardenkotv_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_stgvaultwardenkotv_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', format('stgvaultwarden{0}', parameters('baseName')), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
