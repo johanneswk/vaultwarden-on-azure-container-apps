@@ -126,16 +126,16 @@
               "configuration": {
                   "secrets": [
                       {
-                          "name": "admintoken",
-        "value": "[parameters('adminToken')]"
+                        "name": "admintoken",
+                        "value": "[parameters('adminToken')]"
                       },
                       {
-                          "name": "fileshare-connectionstring",
-        "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('stgvaultwarden{0}', parameters('baseName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2023-01-01').keys[0].value)]"
+                        "name": "fileshare-connectionstring",
+                        "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('stgvaultwarden{0}', parameters('baseName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2023-01-01').keys[0].value)]"
                       },
                       {
-                          "name": "sendgridsmtppassword",
-        "value": "[parameters('sendgridSmtpPassword')]"
+                        "name": "sendgridsmtppassword",
+                        "value": "[parameters('sendgridSmtpPassword')]"
                       }
                   ],
                   "activeRevisionsMode": "Single",
