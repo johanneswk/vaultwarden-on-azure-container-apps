@@ -238,9 +238,10 @@
             ],
             "properties": {
                 "azureFile": {
-                    "accountName": "stgvaultwardenkotv",
+                    "accessMode": "ReadWrite",
                     "shareName": "vaultwarden",
-                    "accessMode": "ReadWrite"
+                    "accountName": "[format('stgvaultwarden{0}', parameters('baseName'))]",
+                    "accountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2023-01-01').keys[0].value]"
                 }
             }
         },
