@@ -112,14 +112,17 @@
           "name": "[format('vaultwarden{0}', parameters('baseName'))]",
           "location": "[parameters('location')]",
           "dependsOn": [
-  "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]"
+            "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', format('stgvaultwarden{0}', parameters('baseName')), 'default', 'vaultwarden')]",
+            "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
+            "[resourceId('Microsoft.App/managedEnvironments/storages', format('managedenv-{0}-vaultwarden', parameters('baseName')), 'vaultwarden')]",
+            "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
           ],
           "identity": {
               "type": "None"
           },
           "properties": {
               "managedEnvironmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
-  "environmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
+              "environmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
               "configuration": {
                   "secrets": [
                       {
