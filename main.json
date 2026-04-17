@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.42.1.51946",
-      "templateHash": "12533493969569554745"
+      "templateHash": "16238369855476007630"
     }
   },
   "parameters": {
@@ -131,24 +131,6 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.OperationalInsights/workspaces', format('law{0}', parameters('baseName')))]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deploymentScripts",
-      "apiVersion": "2023-08-01",
-      "name": "[format('uploadVaultwardenDb-{0}', uniqueString(resourceGroup().id))]",
-      "location": "[parameters('location')]",
-      "kind": "AzurePowerShell",
-      "properties": {
-        "azPowerShellVersion": "11.0",
-        "scriptContent": "      param(\r\n        [string] $storageAccountName,\r\n        [string] $storageAccountKey,\r\n        [string] $shareName,\r\n        [string] $resourceGroupName\r\n      )\r\n      \r\n      $ErrorActionPreference = 'Stop'\r\n      \r\n      # Determine temp directory\r\n      $tempDir = if ($env:TEMP) { $env:TEMP } elseif ($env:TMP) { $env:TMP } else { [System.IO.Path]::GetTempPath() }\r\n      if (-not $tempDir) {\r\n        throw 'Unable to resolve temporary directory.'\r\n      }\r\n      \r\n      $logPath = Join-Path -Path $tempDir -ChildPath 'vaultwarden-db-upload.log'\r\n      if (Test-Path $logPath) { Remove-Item $logPath -Force }\r\n      Start-Transcript -Path $logPath -Force\r\n      \r\n      # Download the zip file\r\n      $zipPath = Join-Path -Path $tempDir -ChildPath 'vaultwarden-db.zip'\r\n      $extractPath = Join-Path -Path $tempDir -ChildPath 'vaultwarden-db'\r\n      New-Item -ItemType Directory -Path $extractPath -Force | Out-Null\r\n      \r\n      Write-Output \"Downloading database files to $zipPath...\"\r\n      Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/mwiedemeyer/vaultwarden-on-azure-container-apps/refs/heads/main/empty-wal-enabled-vaultwarden-db.zip' -OutFile $zipPath\r\n      \r\n      if (-not (Test-Path $zipPath)) {\r\n        throw \"Downloaded zip file not found: $zipPath\"\r\n      }\r\n      \r\n      Write-Output \"Extracting files to $extractPath...\"\r\n      Expand-Archive -LiteralPath $zipPath -DestinationPath $extractPath -Force\r\n      \r\n      if (-not (Test-Path $extractPath)) {\r\n        throw \"Extract directory not found: $extractPath\"\r\n      }\r\n      \r\n      # Create storage account context using key\r\n      $ctx = New-AzStorageContext -StorageAccountName $storageAccountName -StorageAccountKey $storageAccountKey\r\n      \r\n      Write-Output \"Uploading database files to fileshare...\"\r\n      $dbFiles = @('db.sqlite3', 'db.sqlite3-shm', 'db.sqlite3-wal')\r\n      \r\n      foreach ($file in $dbFiles) {\r\n        $localPath = Join-Path $extractPath $file\r\n        if (Test-Path $localPath) {\r\n          Write-Output \"Uploading $file...\"\r\n          az storage file upload --account-name $storageAccountName --account-key $storageAccountKey --share-name $shareName --source \"$localPath\" --path \"$file\" --only-show-errors\r\n          if ($LASTEXITCODE -ne 0) {\r\n            throw \"az storage file upload failed for $file\"\r\n          }\r\n          Write-Output \"Successfully uploaded $file\"\r\n        } else {\r\n          Write-Warning \"File not found: $file\"\r\n        }\r\n      }\r\n      \r\n      Write-Output \"Database files uploaded successfully\"\r\n      Stop-Transcript | Out-Null\r\n      Write-Output \"Full transcript saved to $logPath\"\r\n    ",
-        "arguments": "[format('-storageAccountName {0} -storageAccountKey {1} -shareName {2} -resourceGroupName {3}', format('stgvaultwarden{0}', parameters('baseName')), listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2025-06-01').keys[0].value, 'vaultwarden', resourceGroup().name)]",
-        "retentionInterval": "PT1H",
-        "timeout": "PT30M"
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', format('stgvaultwarden{0}', parameters('baseName')), 'default', 'vaultwarden')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
       ]
     },
     {
